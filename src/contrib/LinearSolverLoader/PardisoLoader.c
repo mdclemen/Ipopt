@@ -6,15 +6,13 @@
  */
 
 #include "IpoptConfig.h"
+#include "IpTypes.h"
 #include "LibraryHandler.h"
 #include "PardisoLoader.h"
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
-
-/* Type of Fortran integer translated into C */
-typedef IPOPT_FORTRAN_INTEGER_TYPE ipfint;
 
 static soHandle_t Pardiso_handle = NULL;
 
@@ -35,15 +33,20 @@ typedef void (*pardisoinit_t)(
    const ipfint* MTYPE,
    const ipfint* SOLVER,
    ipfint*       IPARM,
+<<<<<<< HEAD
 #ifdef IPOPT_SINGLE
    float*        DPARM,
 #else
    double*       DPARM,
 #endif
+=======
+   ipnumber*     DPARM,
+>>>>>>> upstream/devel
    ipfint*       E
 );
 
 typedef void (*pardiso_t)(
+<<<<<<< HEAD
    void**        PT,
    const ipfint* MAXFCT,
    const ipfint* MNUM,
@@ -74,6 +77,25 @@ typedef void (*pardiso_t)(
 #else
    double*       DPARM
 #endif
+=======
+   void**          PT,
+   const ipfint*   MAXFCT,
+   const ipfint*   MNUM,
+   const ipfint*   MTYPE,
+   const ipfint*   PHASE,
+   const ipfint*   N,
+   const ipnumber* A,
+   const ipfint*   IA,
+   const ipfint*   JA,
+   const ipfint*   PERM,
+   const ipfint*   NRHS,
+   ipfint*         IPARM,
+   const ipfint*   MSGLVL,
+   ipnumber*       B,
+   ipnumber*       X,
+   ipfint*         E,
+   ipnumber*       DPARM
+>>>>>>> upstream/devel
 );
 
 static pardisoinit_t func_pardisoinit = NULL;
@@ -85,11 +107,15 @@ void pardisoinit(
    const ipfint* MTYPE,
    const ipfint* SOLVER,
    ipfint*       IPARM,
+<<<<<<< HEAD
 #ifdef IPOPT_SINGLE
    float*        DPARM,
 #else
    double*       DPARM,
 #endif
+=======
+   ipnumber*     DPARM,
+>>>>>>> upstream/devel
    ipfint*       E
 )
 {
@@ -103,6 +129,7 @@ void pardisoinit(
 }
 
 void pardiso(
+<<<<<<< HEAD
    void**        PT,
    const ipfint* MAXFCT,
    const ipfint* MNUM,
@@ -133,6 +160,25 @@ void pardiso(
 #else   
    double*       DPARM
 #endif
+=======
+   void**          PT,
+   const ipfint*   MAXFCT,
+   const ipfint*   MNUM,
+   const ipfint*   MTYPE,
+   const ipfint*   PHASE,
+   const ipfint*   N,
+   const ipnumber* A,
+   const ipfint*   IA,
+   const ipfint*   JA,
+   const ipfint*   PERM,
+   const ipfint*   NRHS,
+   ipfint*         IPARM,
+   const ipfint*   MSGLVL,
+   ipnumber*       B,
+   ipnumber*       X,
+   ipfint*         E,
+   ipnumber*       DPARM
+>>>>>>> upstream/devel
 )
 {
    if (func_pardiso == NULL)

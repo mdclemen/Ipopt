@@ -276,7 +276,7 @@ bool TNLPAdapter::ProcessOptions(
       }
       else if( dependency_detector == "ma28" )
       {
-#if defined(COINHSL_HAS_MA28) && defined(F77_FUNC)
+#if defined(COINHSL_HAS_MA28) && defined(F77_FUNC) && !defined(IPOPT_SINGLE)
          dependency_detector_ = new Ma28TDependencyDetector();
 #else
          THROW_EXCEPTION(OPTION_INVALID, "Ipopt has not been compiled with MA28.  You cannot choose \"ma28\" for \"dependency_detector\".");
@@ -1425,6 +1425,7 @@ bool TNLPAdapter::GetBoundsInformation(
       {
          if( x_l[i] == x_u[i] )
          {
+<<<<<<< HEAD
 #ifdef IPOPT_SINGLE
             x_l[i] -= bound_relax * Max(1.f, fabs(x_l[i]));
             x_u[i] += bound_relax * Max(1.f, fabs(x_u[i]));
@@ -1432,6 +1433,10 @@ bool TNLPAdapter::GetBoundsInformation(
             x_l[i] -= bound_relax * Max(1., fabs(x_l[i]));
             x_u[i] += bound_relax * Max(1., fabs(x_u[i]));
 #endif
+=======
+            x_l[i] -= bound_relax * Max(Number(1.), fabs(x_l[i]));
+            x_u[i] += bound_relax * Max(Number(1.), fabs(x_u[i]));
+>>>>>>> upstream/devel
          }
       }
    }
@@ -2194,6 +2199,7 @@ void TNLPAdapter::FinalizeSolution(
          Number value = dy_c->Scalar();
          for( Index i = 0; i < n_x_fixed_; i++ )
          {
+<<<<<<< HEAD
 #ifdef IPOPT_SINGLE
             full_z_L[x_fixed_map_[i]] = Max(0.f, -value);
             full_z_U[x_fixed_map_[i]] = Max(0.f, value);
@@ -2201,6 +2207,10 @@ void TNLPAdapter::FinalizeSolution(
             full_z_L[x_fixed_map_[i]] = Max(0., -value);
             full_z_U[x_fixed_map_[i]] = Max(0., value);
 #endif
+=======
+            full_z_L[x_fixed_map_[i]] = Max(Number(0.), -value);
+            full_z_U[x_fixed_map_[i]] = Max(Number(0.), value);
+>>>>>>> upstream/devel
          }
       }
    }
@@ -2689,11 +2699,15 @@ bool TNLPAdapter::internal_eval_jac_g(
             if( findiff_x_l_[ivar] < findiff_x_u_[ivar] )
             {
                const Number xorig = full_x_pert[ivar];
+<<<<<<< HEAD
 #ifdef IPOPT_SINGLE
                Number this_perturbation = findiff_perturbation_ * Max(1.f, fabs(full_x_[ivar]));
 #else
                Number this_perturbation = findiff_perturbation_ * Max(1., fabs(full_x_[ivar]));
 #endif
+=======
+               Number this_perturbation = findiff_perturbation_ * Max(Number(1.), fabs(full_x_[ivar]));
+>>>>>>> upstream/devel
                full_x_pert[ivar] += this_perturbation;
                if( full_x_pert[ivar] > findiff_x_u_[ivar] )
                {
@@ -2932,11 +2946,15 @@ bool TNLPAdapter::CheckDerivatives(
       const Index ivar_first = Max(0, deriv_test_start_index);
       for( Index ivar = ivar_first; ivar < nx; ivar++ )
       {
+<<<<<<< HEAD
 #ifdef IPOPT_SINGLE
          Number this_perturbation = derivative_test_perturbation_ * Max(1.f, fabs(xref[ivar]));
 #else
          Number this_perturbation = derivative_test_perturbation_ * Max(1., fabs(xref[ivar]));
 #endif
+=======
+         Number this_perturbation = derivative_test_perturbation_ * Max(Number(1.), fabs(xref[ivar]));
+>>>>>>> upstream/devel
          xpert[ivar] = xref[ivar] + this_perturbation;
 
          Number fpert;
@@ -2948,11 +2966,15 @@ bool TNLPAdapter::CheckDerivatives(
 
          Number deriv_approx = (fpert - fref) / this_perturbation;
          Number deriv_exact = grad_f[ivar];
+<<<<<<< HEAD
 #ifdef IPOPT_SINGLE
          Number rel_error = fabs(deriv_approx - deriv_exact) / Max(fabs(deriv_approx), 1.f);
 #else
          Number rel_error = fabs(deriv_approx - deriv_exact) / Max(fabs(deriv_approx), 1.);
 #endif
+=======
+         Number rel_error = fabs(deriv_approx - deriv_exact) / Max(fabs(deriv_approx), Number(1.));
+>>>>>>> upstream/devel
          char cflag = ' ';
          if( rel_error >= derivative_test_tol_ )
          {
@@ -2983,11 +3005,15 @@ bool TNLPAdapter::CheckDerivatives(
                      deriv_exact += jac_g[i];
                   }
                }
+<<<<<<< HEAD
 #ifdef IPOPT_SINGLE
                rel_error = fabs(deriv_approx - deriv_exact) / Max(fabs(deriv_approx), 1.f);
 #else
                rel_error = fabs(deriv_approx - deriv_exact) / Max(fabs(deriv_approx), 1.);
 #endif
+=======
+               rel_error = fabs(deriv_approx - deriv_exact) / Max(fabs(deriv_approx), Number(1.));
+>>>>>>> upstream/devel
                cflag = ' ';
                if( rel_error >= derivative_test_tol_ )
                {
@@ -3092,11 +3118,15 @@ bool TNLPAdapter::CheckDerivatives(
 
          for( Index ivar = 0; ivar < nx; ivar++ )
          {
+<<<<<<< HEAD
 #ifdef IPOPT_SINGLE
             Number this_perturbation = derivative_test_perturbation_ * Max(1.f, fabs(xref[ivar]));
 #else
             Number this_perturbation = derivative_test_perturbation_ * Max(1., fabs(xref[ivar]));
 #endif
+=======
+            Number this_perturbation = derivative_test_perturbation_ * Max(Number(1.), fabs(xref[ivar]));
+>>>>>>> upstream/devel
             xpert[ivar] = xref[ivar] + this_perturbation;
 
             new_x = true;
@@ -3140,11 +3170,15 @@ bool TNLPAdapter::CheckDerivatives(
                      found = true;
                   }
                }
+<<<<<<< HEAD
 #ifdef IPOPT_SINGLE
                Number rel_error = fabs(deriv_approx - deriv_exact) / Max(fabs(deriv_approx), 1.f);
 #else
                Number rel_error = fabs(deriv_approx - deriv_exact) / Max(fabs(deriv_approx), 1.);
 #endif
+=======
+               Number rel_error = fabs(deriv_approx - deriv_exact) / Max(fabs(deriv_approx), Number(1.));
+>>>>>>> upstream/devel
                char cflag = ' ';
                if( rel_error >= derivative_test_tol_ )
                {
@@ -3269,8 +3303,8 @@ bool TNLPAdapter::DetermineDependentConstraints(
    // fixed_variable_treatment_==MAKE_PARAMETER correctly (yet?)
    // Include space for the RHS
    Index* jac_c_map = new Index[nz_full_jac_g_];
-   ipfint* jac_c_iRow = new ipfint[nz_full_jac_g_ + n_c];
-   ipfint* jac_c_jCol = new ipfint[nz_full_jac_g_ + n_c];
+   Index* jac_c_iRow = new Index[nz_full_jac_g_ + n_c];
+   Index* jac_c_jCol = new Index[nz_full_jac_g_ + n_c];
    Index nz_jac_c = 0;
    const Index* c_row_pos = P_c_g->CompressedPosIndices();
    Index n_fixed = n_full_x_ - n_x_var;

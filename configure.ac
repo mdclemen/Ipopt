@@ -57,6 +57,21 @@ AC_COIN_DOXYGEN
 # IPOPT_VERBOSITY and IPOPT_DEBUGLEVEL
 AC_COIN_DEBUGLEVEL
 
+########################################################################
+#                   Floating-point Precision                           #
+########################################################################
+
+AC_ARG_WITH([precision],
+            [AC_HELP_STRING([--with-precision],[floating-point precision to use: single or double (default)])],
+            [precision=$withval],
+            [precision=double])
+case "$precision" in
+  single ) AC_DEFINE([IPOPT_SINGLE],[1],[Define to 1 if using single precision floating point]) ;;
+  double ) ;;
+  *) AC_MSG_ERROR([unsupported value $precision for option --with-precision])
+esac
+AM_CONDITIONAL([IPOPT_SINGLE],[test "$precision" = single])
+
 #############################################################################
 #                                 Dependencies                              #
 #############################################################################
@@ -69,17 +84,27 @@ if test $coin_has_lapack != yes; then
 #  AC_MSG_WARN([Compiling code without LAPACK.  Certain options (e.g., quasi-Newton) will not work.])
 fi
 
-AC_COIN_CHK_PKG(ASL,[IpoptAmplInterfaceLib SIpoptAmplInterfaceLib],[coinasl],[build])
+# check for ASL only if building for double precision
+if test $precision = double ; then
+  AC_COIN_CHK_PKG(ASL,[IpoptAmplInterfaceLib SIpoptAmplInterfaceLib],[coinasl],[build])
+else
+  AM_CONDITIONAL([COIN_HAS_ASL],[false])
+fi
 
 #########
 # MUMPS #
 #########
 
-AC_COIN_CHK_PKG(Mumps,[IpoptLib],[coinmumps],[build])
+# TODO even though there is a single-precision variant of Mumps, Ipopt hasn't been setup to use it so far
+if test $precision = double ; then
+  AC_COIN_CHK_PKG(Mumps,[IpoptLib],[coinmumps],[build])
 
-# Check whether MPI_Initialized is available
-#   we assume that MPI_Finalized is present if MPI_Initialized is present
-AC_CHECK_FUNCS([MPI_Initialized])
+  # Check whether MPI_Initialized is available
+  #   we assume that MPI_Finalized is present if MPI_Initialized is present
+  AC_CHECK_FUNCS([MPI_Initialized])
+else
+  AM_CONDITIONAL([COIN_HAS_MUMPS],[false])
+fi
 
 #######
 # HSL #
@@ -90,13 +115,18 @@ AC_COIN_CHK_PKG(HSL,[IpoptLib HSLLib],[coinhsl],[build])
 have_ma28=no
 if test "$coin_has_hsl" = yes ; then
   AC_COIN_FINALIZE_FLAGS([HSLLib])
-  AC_COIN_NAMEMANGLING([HSL],[ma27ad],[$HSLLIB_LFLAGS])
+  case $precision in
+    single ) ma27func=ma27a  MA27FUNC=MA27A  ;;
+    double ) ma27func=ma27ad MA27FUNC=MA27AD ;;
+    * ) AC_MSG_ERROR([HSL cannot be used with --with-precision=$precision]) ;;
+  esac
+  AC_COIN_NAMEMANGLING([HSL],[$ma27func],[$HSLLIB_LFLAGS])
   if test "$ac_cv_hsl_namemangling" = "unknown" ; then
     AC_MSG_ERROR([Provided package HSL is not working or does not contain MA27.])
   fi
 
   # extra check for MA28, since that decides whether we have to build IpMa28Partition.F
-  if test -n "$F77" ; then
+  if test -n "$F77" && test $precision = double ; then
     AC_COIN_TRY_LINK([ma28ad],[$HSLLIB_LFLAGS],,[
       if test "$ma28ad_namemangling" != "$ac_cv_f77_mangling" ; then
         AC_MSG_WARN([Name mangling of MA28 different than Fortran. This will not link. Disabling MA28])
@@ -285,8 +315,7 @@ AC_ARG_ENABLE([java],
   [case "$JAVA_HOME" in
      *\ * ) enable_java=no ;;   # do not enable java-check by default, if there are spaces in JAVA_HOME - that causes trouble
      * )    enable_java="$enable_shared" ;;
-   esac
-  ])
+   esac])
 
 if test "$enable_java" != no ; then
   # look for javac: required to compile Java code and build C-header
@@ -479,7 +508,10 @@ AC_COIN_VPATH_LINK(examples/hs071_cpp/hs071_nlp.cpp)
 AC_COIN_VPATH_LINK(examples/hs071_cpp/hs071_nlp.hpp)
 AC_COIN_VPATH_LINK(examples/hs071_c/hs071_c.c)
 if test "$enable_java" != no ; then
-  AC_COIN_VPATH_LINK(examples/hs071_java/HS071.java)
+  case $precision in
+    single ) AC_COIN_VPATH_LINK(examples/hs071_java/HS071s.java) ;;
+    double ) AC_COIN_VPATH_LINK(examples/hs071_java/HS071.java) ;;
+  esac
 fi
 
 AC_COIN_VPATH_LINK(tutorial/AmplExperiments/hs71.mod)
@@ -560,13 +592,21 @@ AC_CONFIG_FILES([Makefile
 ])
 
 if test -n "$F77" ; then
-  AC_CONFIG_FILES([examples/hs071_f/hs071_f.f examples/hs071_f/Makefile
-    tutorial/CodingExercise/Fortran/1-skeleton/TutorialFortran.f
-    tutorial/CodingExercise/Fortran/2-mistake/TutorialFortran.f
-    tutorial/CodingExercise/Fortran/3-solution/TutorialFortran.f
-    tutorial/CodingExercise/Fortran/1-skeleton/Makefile
-    tutorial/CodingExercise/Fortran/2-mistake/Makefile
-    tutorial/CodingExercise/Fortran/3-solution/Makefile])
+  AC_CONFIG_FILES([examples/hs071_f/Makefile])
+  case $precision in
+    single )
+      AC_CONFIG_FILES([examples/hs071_f/hs071_fs.f])
+      ;;
+    double )
+      AC_CONFIG_FILES([examples/hs071_f/hs071_f.f
+        tutorial/CodingExercise/Fortran/1-skeleton/TutorialFortran.f
+        tutorial/CodingExercise/Fortran/2-mistake/TutorialFortran.f
+        tutorial/CodingExercise/Fortran/3-solution/TutorialFortran.f
+        tutorial/CodingExercise/Fortran/1-skeleton/Makefile
+        tutorial/CodingExercise/Fortran/2-mistake/Makefile
+        tutorial/CodingExercise/Fortran/3-solution/Makefile])
+      ;;
+  esac
 fi
 
 if test "$enable_java" != no ; then
@@ -595,7 +635,7 @@ case $build in
     ;;
 esac
 
-if test $coin_has_asl = yes ; then
+if test "$coin_has_asl" = yes ; then
   AC_CONFIG_FILES([ipoptamplinterface.pc:src/Apps/AmplSolver/ipoptamplinterface.pc.in])
 fi
 

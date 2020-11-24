@@ -26,8 +26,13 @@ bool SlackBasedTSymScalingMethod::InitializeImpl(
 bool SlackBasedTSymScalingMethod::ComputeSymTScalingFactors(
    Index         /*n*/,
    Index         /*nnz*/,
+<<<<<<< HEAD
    const ipfint* /*airn*/,
    const ipfint* /*ajcn*/,
+=======
+   const Index*  /*airn*/,
+   const Index*  /*ajcn*/,
+>>>>>>> upstream/devel
    const Number* /*a*/,
    Number*       scaling_factors
 )

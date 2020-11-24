@@ -700,6 +700,8 @@ PKG_CONFIG
 IPOPTLIB_PCFILES
 IPOPTLIB_CFLAGS
 IPOPTLIB_LFLAGS
+IPOPT_SINGLE_FALSE
+IPOPT_SINGLE_TRUE
 coin_doxy_tagfiles
 COIN_HAS_LATEX_FALSE
 COIN_HAS_LATEX_TRUE
@@ -871,6 +873,7 @@ enable_libtool_lock
 with_dot
 with_ipopt_verbosity
 with_ipopt_checklevel
+with_precision
 with_lapack
 with_lapack_lflags
 with_asl
@@ -1575,6 +1578,8 @@ Optional Packages:
                           with doxygen if available; --without-dot to disable
   --with-ipopt-verbosity  specify the debug verbosity level
   --with-ipopt-checklevel specify the sanity check level
+  --with-precision        floating-point precision to use: single or double
+                          (default)
   --with-lapack           Use lapack. If an argument is given, 'yes' is
                           equivalent to --with-lapack, 'no' is
                           equivalent to --without-lapack. Any other argument
@@ -21610,6 +21615,34 @@ _ACEOF
 
 
 
+########################################################################
+#                   Floating-point Precision                           #
+########################################################################
+
+
+# Check whether --with-precision was given.
+if test "${with_precision+set}" = set; then :
+  withval=$with_precision; precision=$withval
+else
+  precision=double
+fi
+
+case "$precision" in
+  single )
+$as_echo "#define IPOPT_SINGLE 1" >>confdefs.h
+ ;;
+  double ) ;;
+  *) as_fn_error $? "unsupported value $precision for option --with-precision" "$LINENO" 5
+esac
+ if test "$precision" = single; then
+  IPOPT_SINGLE_TRUE=
+  IPOPT_SINGLE_FALSE='#'
+else
+  IPOPT_SINGLE_TRUE='#'
+  IPOPT_SINGLE_FALSE=
+fi
+
+
 #############################################################################
 #                                 Dependencies                              #
 #############################################################################
@@ -22856,6 +22889,8 @@ if test $coin_has_lapack != yes; then
 #  AC_MSG_WARN([Compiling code without LAPACK.  Certain options (e.g., quasi-Newton) will not work.])
 fi
 
+# check for ASL only if building for double precision
+if test $precision = double ; then
 
 
 
@@ -23098,11 +23133,23 @@ $as_echo "#define IPOPT_HAS_ASL 1" >>confdefs.h
 
   fi
 
+else
+   if false; then
+  COIN_HAS_ASL_TRUE=
+  COIN_HAS_ASL_FALSE='#'
+else
+  COIN_HAS_ASL_TRUE='#'
+  COIN_HAS_ASL_FALSE=
+fi
+
+fi
 
 #########
 # MUMPS #
 #########
 
+# TODO even though there is a single-precision variant of Mumps, Ipopt hasn't been setup to use it so far
+if test $precision = double ; then
 
 
 
@@ -23340,9 +23387,9 @@ $as_echo "#define IPOPT_HAS_MUMPS 1" >>confdefs.h
   fi
 
 
-# Check whether MPI_Initialized is available
-#   we assume that MPI_Finalized is present if MPI_Initialized is present
-for ac_func in MPI_Initialized
+  # Check whether MPI_Initialized is available
+  #   we assume that MPI_Finalized is present if MPI_Initialized is present
+  for ac_func in MPI_Initialized
 do :
   ac_fn_c_check_func "$LINENO" "MPI_Initialized" "ac_cv_func_MPI_Initialized"
 if test "x$ac_cv_func_MPI_Initialized" = xyes; then :
@@ -23353,6 +23400,16 @@ _ACEOF
 fi
 done
 
+else
+   if false; then
+  COIN_HAS_MUMPS_TRUE=
+  COIN_HAS_MUMPS_FALSE='#'
+else
+  COIN_HAS_MUMPS_TRUE='#'
+  COIN_HAS_MUMPS_FALSE=
+fi
+
+fi
 
 #######
 # HSL #
@@ -23655,6 +23712,11 @@ $as_echo "$as_me: HSLLIB_CFLAGS: \"${HSLLIB_CFLAGS}\"" >&6;}
       fi
 
 
+  case $precision in
+    single ) ma27func=ma27a  MA27FUNC=MA27A  ;;
+    double ) ma27func=ma27ad MA27FUNC=MA27AD ;;
+    * ) as_fn_error $? "HSL cannot be used with --with-precision=$precision" "$LINENO" 5 ;;
+  esac
 
   { $as_echo "$as_me:${as_lineno-$LINENO}: checking HSL name mangling scheme" >&5
 $as_echo_n "checking HSL name mangling scheme... " >&6; }
@@ -23675,10 +23737,10 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
            ac_cv_hsl_namemangling="${ac_case}, ${ac_trail}, ${ac_extra}"
            case $ac_case in
              "lower case")
-               ac_name=ma27ad
+               ac_name=$ma27func
                ;;
              "upper case")
-               ac_name=MA27AD
+               ac_name=$MA27FUNC
                ;;
            esac
            if test "$ac_trail" = underscore ; then
@@ -23793,7 +23855,7 @@ $as_echo "$as_me: WARNING: Unsupported or unknown name-mangling scheme: $ac_cv_h
   fi
 
   # extra check for MA28, since that decides whether we have to build IpMa28Partition.F
-  if test -n "$F77" ; then
+  if test -n "$F77" && test $precision = double ; then
 
   ac_save_LIBS="$LIBS"
   LIBS="$HSLLIB_LFLAGS $LIBS"
@@ -24793,7 +24855,6 @@ else
      *\ * ) enable_java=no ;;   # do not enable java-check by default, if there are spaces in JAVA_HOME - that causes trouble
      * )    enable_java="$enable_shared" ;;
    esac
-
 fi
 
 
@@ -24903,7 +24964,11 @@ else
 JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 cat << \EOF > $JAVA_TEST
+<<<<<<< HEAD
 /* #line 24906 "configure" */
+=======
+/* #line 24962 "configure" */
+>>>>>>> upstream/devel
 public class Test {
 }
 EOF
@@ -25389,7 +25454,11 @@ else
 JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 cat << \EOF > $JAVA_TEST
+<<<<<<< HEAD
 /* #line 25392 "configure" */
+=======
+/* #line 25448 "configure" */
+>>>>>>> upstream/devel
 public class Test {
 }
 EOF
@@ -25423,7 +25492,11 @@ JAVA_TEST=Test.java
 CLASS_TEST=Test.class
 TEST=Test
 cat << \EOF > $JAVA_TEST
+<<<<<<< HEAD
 /* [#]line 25426 "configure" */
+=======
+/* [#]line 25482 "configure" */
+>>>>>>> upstream/devel
 public class Test {
 public static void main (String args[]) {
         System.exit (0);
@@ -25930,10 +26003,16 @@ fi
 
 
 if test "$enable_java" != no ; then
+  case $precision in
+    single )
+  ac_config_links="$ac_config_links examples/hs071_java/HS071s.java:examples/hs071_java/HS071s.java"
 
+ ;;
+    double )
   ac_config_links="$ac_config_links examples/hs071_java/HS071.java:examples/hs071_java/HS071.java"
 
-
+ ;;
+  esac
 fi
 
 
@@ -26233,8 +26312,18 @@ ac_config_files="$ac_config_files Makefile src/Common/Makefile src/LinAlg/Makefi
 
 
 if test -n "$F77" ; then
-  ac_config_files="$ac_config_files examples/hs071_f/hs071_f.f examples/hs071_f/Makefile tutorial/CodingExercise/Fortran/1-skeleton/TutorialFortran.f tutorial/CodingExercise/Fortran/2-mistake/TutorialFortran.f tutorial/CodingExercise/Fortran/3-solution/TutorialFortran.f tutorial/CodingExercise/Fortran/1-skeleton/Makefile tutorial/CodingExercise/Fortran/2-mistake/Makefile tutorial/CodingExercise/Fortran/3-solution/Makefile"
+  ac_config_files="$ac_config_files examples/hs071_f/Makefile"
 
+  case $precision in
+    single )
+      ac_config_files="$ac_config_files examples/hs071_f/hs071_fs.f"
+
+      ;;
+    double )
+      ac_config_files="$ac_config_files examples/hs071_f/hs071_f.f tutorial/CodingExercise/Fortran/1-skeleton/TutorialFortran.f tutorial/CodingExercise/Fortran/2-mistake/TutorialFortran.f tutorial/CodingExercise/Fortran/3-solution/TutorialFortran.f tutorial/CodingExercise/Fortran/1-skeleton/Makefile tutorial/CodingExercise/Fortran/2-mistake/Makefile tutorial/CodingExercise/Fortran/3-solution/Makefile"
+
+      ;;
+  esac
 fi
 
 if test "$enable_java" != no ; then
@@ -26260,7 +26349,7 @@ case $build in
     ;;
 esac
 
-if test $coin_has_asl = yes ; then
+if test "$coin_has_asl" = yes ; then
   ac_config_files="$ac_config_files ipoptamplinterface.pc:src/Apps/AmplSolver/ipoptamplinterface.pc.in"
 
 fi
@@ -26430,6 +26519,10 @@ if test -z "${COIN_HAS_LATEX_TRUE}" && test -z "${COIN_HAS_LATEX_FALSE}"; then
   as_fn_error $? "conditional \"COIN_HAS_LATEX\" was never defined.
 Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
+if test -z "${IPOPT_SINGLE_TRUE}" && test -z "${IPOPT_SINGLE_FALSE}"; then
+  as_fn_error $? "conditional \"IPOPT_SINGLE\" was never defined.
+Usually this means the macro was only invoked conditionally." "$LINENO" 5
+fi
 if test -z "${COIN_HAS_PKGCONFIG_TRUE}" && test -z "${COIN_HAS_PKGCONFIG_FALSE}"; then
   as_fn_error $? "conditional \"COIN_HAS_PKGCONFIG\" was never defined.
 Usually this means the macro was only invoked conditionally." "$LINENO" 5
@@ -26440,6 +26533,14 @@ Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
 if test -z "${COIN_HAS_ASL_TRUE}" && test -z "${COIN_HAS_ASL_FALSE}"; then
   as_fn_error $? "conditional \"COIN_HAS_ASL\" was never defined.
+Usually this means the macro was only invoked conditionally." "$LINENO" 5
+fi
+if test -z "${COIN_HAS_ASL_TRUE}" && test -z "${COIN_HAS_ASL_FALSE}"; then
+  as_fn_error $? "conditional \"COIN_HAS_ASL\" was never defined.
+Usually this means the macro was only invoked conditionally." "$LINENO" 5
+fi
+if test -z "${COIN_HAS_MUMPS_TRUE}" && test -z "${COIN_HAS_MUMPS_FALSE}"; then
+  as_fn_error $? "conditional \"COIN_HAS_MUMPS\" was never defined.
 Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
 if test -z "${COIN_HAS_MUMPS_TRUE}" && test -z "${COIN_HAS_MUMPS_FALSE}"; then
@@ -27601,6 +27702,7 @@ do
     "examples/hs071_cpp/hs071_nlp.cpp") CONFIG_LINKS="$CONFIG_LINKS examples/hs071_cpp/hs071_nlp.cpp:examples/hs071_cpp/hs071_nlp.cpp" ;;
     "examples/hs071_cpp/hs071_nlp.hpp") CONFIG_LINKS="$CONFIG_LINKS examples/hs071_cpp/hs071_nlp.hpp:examples/hs071_cpp/hs071_nlp.hpp" ;;
     "examples/hs071_c/hs071_c.c") CONFIG_LINKS="$CONFIG_LINKS examples/hs071_c/hs071_c.c:examples/hs071_c/hs071_c.c" ;;
+    "examples/hs071_java/HS071s.java") CONFIG_LINKS="$CONFIG_LINKS examples/hs071_java/HS071s.java:examples/hs071_java/HS071s.java" ;;
     "examples/hs071_java/HS071.java") CONFIG_LINKS="$CONFIG_LINKS examples/hs071_java/HS071.java:examples/hs071_java/HS071.java" ;;
     "tutorial/AmplExperiments/hs71.mod") CONFIG_LINKS="$CONFIG_LINKS tutorial/AmplExperiments/hs71.mod:tutorial/AmplExperiments/hs71.mod" ;;
     "tutorial/AmplExperiments/infeasible.mod") CONFIG_LINKS="$CONFIG_LINKS tutorial/AmplExperiments/infeasible.mod:tutorial/AmplExperiments/infeasible.mod" ;;
@@ -27665,8 +27767,9 @@ do
     "tutorial/CodingExercise/Matlab/1-skeleton/startup.m") CONFIG_FILES="$CONFIG_FILES tutorial/CodingExercise/Matlab/1-skeleton/startup.m" ;;
     "tutorial/CodingExercise/Matlab/2-mistake/startup.m") CONFIG_FILES="$CONFIG_FILES tutorial/CodingExercise/Matlab/2-mistake/startup.m" ;;
     "tutorial/CodingExercise/Matlab/3-solution/startup.m") CONFIG_FILES="$CONFIG_FILES tutorial/CodingExercise/Matlab/3-solution/startup.m" ;;
-    "examples/hs071_f/hs071_f.f") CONFIG_FILES="$CONFIG_FILES examples/hs071_f/hs071_f.f" ;;
     "examples/hs071_f/Makefile") CONFIG_FILES="$CONFIG_FILES examples/hs071_f/Makefile" ;;
+    "examples/hs071_f/hs071_fs.f") CONFIG_FILES="$CONFIG_FILES examples/hs071_f/hs071_fs.f" ;;
+    "examples/hs071_f/hs071_f.f") CONFIG_FILES="$CONFIG_FILES examples/hs071_f/hs071_f.f" ;;
     "tutorial/CodingExercise/Fortran/1-skeleton/TutorialFortran.f") CONFIG_FILES="$CONFIG_FILES tutorial/CodingExercise/Fortran/1-skeleton/TutorialFortran.f" ;;
     "tutorial/CodingExercise/Fortran/2-mistake/TutorialFortran.f") CONFIG_FILES="$CONFIG_FILES tutorial/CodingExercise/Fortran/2-mistake/TutorialFortran.f" ;;
     "tutorial/CodingExercise/Fortran/3-solution/TutorialFortran.f") CONFIG_FILES="$CONFIG_FILES tutorial/CodingExercise/Fortran/3-solution/TutorialFortran.f" ;;

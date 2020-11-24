@@ -24,7 +24,4 @@ typedef int Int;
 
 } // namespace Ipopt
 
-/* Type of Fortran integer translated into C */
-typedef IPOPT_FORTRAN_INTEGER_TYPE ipfint;
-
 #endif

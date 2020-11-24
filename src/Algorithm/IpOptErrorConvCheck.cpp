@@ -314,11 +314,15 @@ bool OptimalityErrorConvergenceCheck::CurrentIsAcceptable()
                      "  curr_obj_val_ = %23.16e   last_obj_val                = %23.16e\n", curr_obj_val_, last_obj_val_);
       Jnlst().Printf(J_MOREDETAILED, J_MAIN,
                      "  fabs(curr_obj_val_-last_obj_val_)/Max(1., fabs(curr_obj_val_)) = %23.16e acceptable_obj_change_tol_ = %23.16e\n",
+<<<<<<< HEAD
 #ifdef IPOPT_SINGLE
                      fabs(curr_obj_val_ - last_obj_val_) / Max(1.f, fabs(curr_obj_val_)), acceptable_obj_change_tol_);
 #else
                      fabs(curr_obj_val_ - last_obj_val_) / Max(1., fabs(curr_obj_val_)), acceptable_obj_change_tol_);
 #endif
+=======
+                     fabs(curr_obj_val_ - last_obj_val_) / Max(Number(1.), fabs(curr_obj_val_)), acceptable_obj_change_tol_);
+>>>>>>> upstream/devel
       // DELETEME
       Jnlst().Printf(J_MOREDETAILED, J_MAIN,
                      "test iter = %d\n", IpData().iter_count());
@@ -326,11 +330,15 @@ bool OptimalityErrorConvergenceCheck::CurrentIsAcceptable()
 
    return (overall_error <= acceptable_tol_ && dual_inf <= acceptable_dual_inf_tol_
            && constr_viol <= acceptable_constr_viol_tol_ && compl_inf <= acceptable_compl_inf_tol_
+<<<<<<< HEAD
 #ifdef IPOPT_SINGLE
            && fabs(curr_obj_val_ - last_obj_val_) / Max(1.f, fabs(curr_obj_val_)) <= acceptable_obj_change_tol_);
 #else
            && fabs(curr_obj_val_ - last_obj_val_) / Max(1., fabs(curr_obj_val_)) <= acceptable_obj_change_tol_);
 #endif
+=======
+           && fabs(curr_obj_val_ - last_obj_val_) / Max(Number(1.), fabs(curr_obj_val_)) <= acceptable_obj_change_tol_);
+>>>>>>> upstream/devel
 }
 
 } // namespace Ipopt

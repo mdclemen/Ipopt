@@ -5,13 +5,14 @@
 // Authors:  Andreas Waechter            IBM    2007-04-17
 
 #include "IpoptConfig.h"
+#include "IpTypes.h"
 
 #ifdef IPOPT_HAS_HSL
 #include "CoinHslConfig.h"
 #endif
 
-// if we have MA28 in HSL or the linear solver loader, then we want to build the MA28 interface
-#if defined(COINHSL_HAS_MA28) && defined(F77_FUNC)
+// if we have MA28 in HSL or the linear solver loader, and build for double precision, then we want to build the MA28 interface
+#if defined(COINHSL_HAS_MA28) && defined(F77_FUNC) && !defined(IPOPT_SINGLE)
 
 #include "IpMa28TDependencyDetector.hpp"
 

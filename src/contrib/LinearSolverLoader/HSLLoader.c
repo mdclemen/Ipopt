@@ -21,6 +21,31 @@
 
 #define HSLLIBNAME "libhsl." SHAREDLIBEXT
 
+#ifdef IPOPT_SINGLE
+#define HSLFUNCNAMESUFFIX ""
+#define HSLFUNCNAMESUFFIXUC ""
+#define IPOPT_HSL_FUNCP(name,NAME) IPOPT_HSL_FUNC(name,NAME)
+#else
+#define HSLFUNCNAMESUFFIX "d"
+#define HSLFUNCNAMESUFFIXUC "D"
+#define IPOPT_HSL_FUNCP(name,NAME) IPOPT_HSL_FUNC(name ## d,NAME ## D)
+#endif
+
+/* make MA27 available in HSL loader if MA27(S) not available in HSL */
+#if (defined(IPOPT_SINGLE) && !defined(COINHSL_HAS_MA27S)) || (!defined(IPOPT_SINGLE) && !defined(COINHSL_HAS_MA27))
+#define HSLLOADER_MA27
+#endif
+
+/* make MA57 available in HSL loader if MA57(S) not available in HSL */
+#if (defined(IPOPT_SINGLE) && !defined(COINHSL_HAS_MA57S)) || (!defined(IPOPT_SINGLE) && !defined(COINHSL_HAS_MA57))
+#define HSLLOADER_MA57
+#endif
+
+/* make MC19 available in HSL loader if MC19(S) not available in HSL */
+#if (defined(IPOPT_SINGLE) && !defined(COINHSL_HAS_MC19S)) || (!defined(IPOPT_SINGLE) && !defined(COINHSL_HAS_MC19))
+#define HSLLOADER_MC19
+#endif
+
 static soHandle_t HSL_handle = NULL;
 
 void LSL_lateHSLLoad(void);
@@ -34,12 +59,17 @@ voidfun LSL_loadSym(
    int         msgLen
 );
 
+<<<<<<< HEAD
 #ifndef COINHSL_HAS_MA27
 #ifdef IPOPT_SINGLE
+=======
+#ifdef HSLLOADER_MA27
+>>>>>>> upstream/devel
 static ma27a_t func_ma27a = NULL;
 static ma27b_t func_ma27b = NULL;
 static ma27c_t func_ma27c = NULL;
 static ma27i_t func_ma27i = NULL;
+<<<<<<< HEAD
 
 void IPOPT_HSL_FUNC(ma27a, MA27A)(
    ipfint*       N,
@@ -148,8 +178,10 @@ static ma27ad_t func_ma27ad = NULL;
 static ma27bd_t func_ma27bd = NULL;
 static ma27cd_t func_ma27cd = NULL;
 static ma27id_t func_ma27id = NULL;
+=======
+>>>>>>> upstream/devel
 
-void IPOPT_HSL_FUNC(ma27ad, MA27AD)(
+void IPOPT_HSL_FUNCP(ma27a, MA27A)(
    ipfint*       N,
    ipfint*       NZ,
    const ipfint* IRN,
@@ -161,29 +193,29 @@ void IPOPT_HSL_FUNC(ma27ad, MA27AD)(
    ipfint*       NSTEPS,
    ipfint*       IFLAG,
    ipfint*       ICNTL,
-   double*       CNTL,
+   ipnumber*     CNTL,
    ipfint*       INFO,
-   double*       OPS
+   ipnumber*     OPS
 )
 {
-   if( func_ma27ad == NULL )
+   if( func_ma27a == NULL )
    {
       LSL_lateHSLLoad();
    }
-   if( func_ma27ad == NULL )
+   if( func_ma27a == NULL )
    {
-      fprintf(stderr, "HSL routine MA27AD not found in " HSLLIBNAME ".\nAbort...\n");
+      fprintf(stderr, "HSL routine MA27A" HSLFUNCNAMESUFFIXUC " not found in " HSLLIBNAME ".\nAbort...\n");
       exit(EXIT_FAILURE);
    }
-   func_ma27ad(N, NZ, IRN, ICN, IW, LIW, IKEEP, IW1, NSTEPS, IFLAG, ICNTL, CNTL, INFO, OPS);
+   func_ma27a(N, NZ, IRN, ICN, IW, LIW, IKEEP, IW1, NSTEPS, IFLAG, ICNTL, CNTL, INFO, OPS);
 }
 
-void IPOPT_HSL_FUNC(ma27bd, MA27BD)(
+void IPOPT_HSL_FUNCP(ma27b, MA27B)(
    ipfint*       N,
    ipfint*       NZ,
    const ipfint* IRN,
    const ipfint* ICN,
-   double*       A,
+   ipnumber*     A,
    ipfint*       LA,
    ipfint*       IW,
    ipfint*       LIW,
@@ -192,76 +224,83 @@ void IPOPT_HSL_FUNC(ma27bd, MA27BD)(
    ipfint*       MAXFRT,
    ipfint*       IW1,
    ipfint*       ICNTL,
-   double*       CNTL,
+   ipnumber*     CNTL,
    ipfint*       INFO
 )
 {
-   if( func_ma27bd == NULL )
+   if( func_ma27b == NULL )
    {
       LSL_lateHSLLoad();
    }
-   if( func_ma27bd == NULL )
+   if( func_ma27b == NULL )
    {
-      fprintf(stderr, "HSL routine MA27BD not found in " HSLLIBNAME ".\nAbort...\n");
+      fprintf(stderr, "HSL routine MA27B" HSLFUNCNAMESUFFIXUC " not found in " HSLLIBNAME ".\nAbort...\n");
       exit(EXIT_FAILURE);
    }
-   func_ma27bd(N, NZ, IRN, ICN, A, LA, IW, LIW, IKEEP, NSTEPS, MAXFRT, IW1, ICNTL, CNTL, INFO);
+   func_ma27b(N, NZ, IRN, ICN, A, LA, IW, LIW, IKEEP, NSTEPS, MAXFRT, IW1, ICNTL, CNTL, INFO);
 }
 
-void IPOPT_HSL_FUNC(ma27cd, MA27CD)(
-   ipfint* N,
-   double* A,
-   ipfint* LA,
-   ipfint* IW,
-   ipfint* LIW,
-   double* W,
-   ipfint* MAXFRT,
-   double* RHS,
-   ipfint* IW1,
-   ipfint* NSTEPS,
-   ipfint* ICNTL,
-   double* CNTL
+void IPOPT_HSL_FUNCP(ma27c, MA27C)(
+   ipfint*   N,
+   ipnumber* A,
+   ipfint*   LA,
+   ipfint*   IW,
+   ipfint*   LIW,
+   ipnumber* W,
+   ipfint*   MAXFRT,
+   ipnumber* RHS,
+   ipfint*   IW1,
+   ipfint*   NSTEPS,
+   ipfint*   ICNTL,
+   ipnumber* CNTL
 )
 {
-   if( func_ma27cd == NULL )
+   if( func_ma27c == NULL )
    {
       LSL_lateHSLLoad();
    }
-   if( func_ma27cd == NULL )
+   if( func_ma27c == NULL )
    {
-      fprintf(stderr, "HSL routine MA27CD not found in " HSLLIBNAME ".\nAbort...\n");
+      fprintf(stderr, "HSL routine MA27C" HSLFUNCNAMESUFFIXUC " not found in " HSLLIBNAME ".\nAbort...\n");
       exit(EXIT_FAILURE);
    }
-   func_ma27cd(N, A, LA, IW, LIW, W, MAXFRT, RHS, IW1, NSTEPS, ICNTL, CNTL);
+   func_ma27c(N, A, LA, IW, LIW, W, MAXFRT, RHS, IW1, NSTEPS, ICNTL, CNTL);
 }
 
-void IPOPT_HSL_FUNC(ma27id, MA27ID)(
-   ipfint* ICNTL,
-   double* CNTL
+void IPOPT_HSL_FUNCP(ma27i, MA27I)(
+   ipfint*   ICNTL,
+   ipnumber* CNTL
 )
 {
-   if( func_ma27id == NULL )
+   if( func_ma27i == NULL )
    {
       LSL_lateHSLLoad();
    }
-   if( func_ma27id == NULL )
+   if( func_ma27i == NULL )
    {
-      fprintf(stderr, "HSL routine MA27ID not found in " HSLLIBNAME ".\nAbort...\n");
+      fprintf(stderr, "HSL routine MA27I" HSLFUNCNAMESUFFIXUC " not found in " HSLLIBNAME ".\nAbort...\n");
       exit(EXIT_FAILURE);
    }
-   func_ma27id(ICNTL, CNTL);
+   func_ma27i(ICNTL, CNTL);
 }
+<<<<<<< HEAD
 
 #endif // IPOPT_SINGLE
 #endif
 
 #ifndef COINHSL_HAS_MA57
 #ifdef IPOPT_SINGLE
+=======
+#endif
+
+#ifdef HSLLOADER_MA57
+>>>>>>> upstream/devel
 static ma57i_t func_ma57i = NULL;
 static ma57a_t func_ma57a = NULL;
 static ma57b_t func_ma57b = NULL;
 static ma57c_t func_ma57c = NULL;
 static ma57e_t func_ma57e = NULL;
+<<<<<<< HEAD
 
 void IPOPT_HSL_FUNC(ma57i, MA57I)(
    float*  cntl,
@@ -399,21 +438,27 @@ static ma57ed_t func_ma57ed = NULL;
 void IPOPT_HSL_FUNC(ma57id, MA57ID)(
    double* cntl,
    ipfint* icntl
+=======
+
+void IPOPT_HSL_FUNCP(ma57i, MA57I)(
+   ipnumber* cntl,
+   ipfint*   icntl
+>>>>>>> upstream/devel
 )
 {
-   if( func_ma57id == NULL )
+   if( func_ma57i == NULL )
    {
       LSL_lateHSLLoad();
    }
-   if( func_ma57id == NULL )
+   if( func_ma57i == NULL )
    {
-      fprintf(stderr, "HSL routine MA57ID not found in " HSLLIBNAME ".\nAbort...\n");
+      fprintf(stderr, "HSL routine MA57I" HSLFUNCNAMESUFFIXUC " not found in " HSLLIBNAME ".\nAbort...\n");
       exit(EXIT_FAILURE);
    }
-   func_ma57id(cntl, icntl);
+   func_ma57i(cntl, icntl);
 }
 
-void IPOPT_HSL_FUNC(ma57ad, MA57AD)(
+void IPOPT_HSL_FUNCP(ma57a, MA57A)(
    ipfint*       n,       /**< Order of matrix. */
    ipfint*       ne,      /**< Number of entries. */
    const ipfint* irn,     /**< Matrix nonzero row structure */
@@ -423,26 +468,26 @@ void IPOPT_HSL_FUNC(ma57ad, MA57AD)(
    ipfint*       iwork,   /**< Integer work space. */
    ipfint*       icntl,   /**< Integer Control parameter of length 30*/
    ipfint*       info,    /**< Statistical Information; Integer array of length 20 */
-   double*       rinfo    /**< Double Control parameter of length 5 */
+   ipnumber*     rinfo    /**< Double Control parameter of length 5 */
 )
 {
-   if( func_ma57ad == NULL )
+   if( func_ma57a == NULL )
    {
       LSL_lateHSLLoad();
    }
-   if( func_ma57ad == NULL )
+   if( func_ma57a == NULL )
    {
-      fprintf(stderr, "HSL routine MA57AD not found in " HSLLIBNAME ".\nAbort...\n");
+      fprintf(stderr, "HSL routine MA57A" HSLFUNCNAMESUFFIXUC " not found in " HSLLIBNAME ".\nAbort...\n");
       exit(EXIT_FAILURE);
    }
-   func_ma57ad(n, ne, irn, jcn, lkeep, keep, iwork, icntl, info, rinfo);
+   func_ma57a(n, ne, irn, jcn, lkeep, keep, iwork, icntl, info, rinfo);
 }
 
-void IPOPT_HSL_FUNC(ma57bd, MA57BD)(
+void IPOPT_HSL_FUNCP(ma57b, MA57B)(
    ipfint*    n,         /**< Order of matrix. */
    ipfint*    ne,        /**< Number of entries. */
-   double*    a,         /**< Numerical values. */
-   double*    fact,      /**< Entries of factors. */
+   ipnumber*  a,         /**< Numerical values. */
+   ipnumber*  fact,      /**< Entries of factors. */
    ipfint*    lfact,     /**< Length of array `fact'. */
    ipfint*    ifact,     /**< Indexing info for factors. */
    ipfint*    lifact,    /**< Length of array `ifact'. */
@@ -450,59 +495,59 @@ void IPOPT_HSL_FUNC(ma57bd, MA57BD)(
    ipfint*    keep,      /**< Integer array. */
    ipfint*    iwork,     /**< Workspace of length `n'. */
    ipfint*    icntl,     /**< Integer Control parameter of length 20. */
-   double*    cntl,      /**< Double Control parameter of length 5. */
+   ipnumber*  cntl,      /**< Double Control parameter of length 5. */
    ipfint*    info,      /**< Statistical Information; Integer array of length 40. */
-   double*    rinfo      /**< Statistical Information; Real array of length 20. */
+   ipnumber*  rinfo      /**< Statistical Information; Real array of length 20. */
 )
 {
-   if( func_ma57bd == NULL )
+   if( func_ma57b == NULL )
    {
       LSL_lateHSLLoad();
    }
-   if( func_ma57bd == NULL )
+   if( func_ma57b == NULL )
    {
-      fprintf(stderr, "HSL routine MA57BD not found in " HSLLIBNAME ".\nAbort...\n");
+      fprintf(stderr, "HSL routine MA57B" HSLFUNCNAMESUFFIXUC " not found in " HSLLIBNAME ".\nAbort...\n");
       exit(EXIT_FAILURE);
    }
-   func_ma57bd(n, ne, a, fact, lfact, ifact, lifact, lkeep, keep, iwork, icntl, cntl, info, rinfo);
+   func_ma57b(n, ne, a, fact, lfact, ifact, lifact, lkeep, keep, iwork, icntl, cntl, info, rinfo);
 }
 
-void IPOPT_HSL_FUNC(ma57cd, MA57CD)(
+void IPOPT_HSL_FUNCP(ma57c, MA57C)(
    ipfint*    job,       /**< Solution job.  Solve for... */
    ipfint*    n,         /**< Order of matrix. */
-   double*    fact,      /**< Entries of factors. */
+   ipnumber*  fact,      /**< Entries of factors. */
    ipfint*    lfact,     /**< Length of array `fact'. */
    ipfint*    ifact,     /**< Indexing info for factors. */
    ipfint*    lifact,    /**< Length of array `ifact'. */
    ipfint*    nrhs,      /**< Number of right hand sides. */
-   double*    rhs,       /**< Numerical Values. */
+   ipnumber*  rhs,       /**< Numerical Values. */
    ipfint*    lrhs,      /**< Leading dimensions of `rhs'. */
-   double*    work,      /**< Real workspace. */
+   ipnumber*  work,      /**< Real workspace. */
    ipfint*    lwork,     /**< Length of `work', >= N*NRHS. */
    ipfint*    iwork,     /**< Integer array of length `n'. */
    ipfint*    icntl,     /**< Integer Control parameter array of length 20. */
    ipfint*    info       /**< Statistical Information; Integer array of length 40. */
 )
 {
-   if( func_ma57cd == NULL )
+   if( func_ma57c == NULL )
    {
       LSL_lateHSLLoad();
    }
-   if( func_ma57cd == NULL )
+   if( func_ma57c == NULL )
    {
-      fprintf(stderr, "HSL routine MA57CD not found in " HSLLIBNAME ".\nAbort...\n");
+      fprintf(stderr, "HSL routine MA57C" HSLFUNCNAMESUFFIXUC " not found in " HSLLIBNAME ".\nAbort...\n");
       exit(EXIT_FAILURE);
    }
-   func_ma57cd(job, n, fact, lfact, ifact, lifact, nrhs, rhs, lrhs, work, lwork, iwork, icntl, info);
+   func_ma57c(job, n, fact, lfact, ifact, lifact, nrhs, rhs, lrhs, work, lwork, iwork, icntl, info);
 }
 
-void IPOPT_HSL_FUNC(ma57ed, MA57ED)(
+void IPOPT_HSL_FUNCP(ma57e, MA57E)(
    ipfint*    n,
    ipfint*    ic,        /**< 0: copy real array.  >=1:  copy integer array. */
    ipfint*    keep,
-   double*    fact,
+   ipnumber*  fact,
    ipfint*    lfact,
-   double*    newfac,
+   ipnumber*  newfac,
    ipfint*    lnew,
    ipfint*    ifact,
    ipfint*    lifact,
@@ -511,16 +556,16 @@ void IPOPT_HSL_FUNC(ma57ed, MA57ED)(
    ipfint*    info
 )
 {
-   if( func_ma57ed == NULL )
+   if( func_ma57e == NULL )
    {
       LSL_lateHSLLoad();
    }
-   if( func_ma57ed == NULL )
+   if( func_ma57e == NULL )
    {
-      fprintf(stderr, "HSL routine MA57ED not found in " HSLLIBNAME ".\nAbort...\n");
+      fprintf(stderr, "HSL routine MA57E" HSLFUNCNAMESUFFIXUC " not found in " HSLLIBNAME ".\nAbort...\n");
       exit(EXIT_FAILURE);
    }
-   func_ma57ed(n, ic, keep, fact, lfact, newfac, lnew, ifact, lifact, newifc, linew, info);
+   func_ma57e(n, ic, keep, fact, lfact, newfac, lnew, ifact, lifact, newifc, linew, info);
 }
 #endif // IPOPT_SINGLE
 #endif
@@ -1181,6 +1226,7 @@ void ma97_free_akeep(
 }
 #endif
 
+<<<<<<< HEAD
 #ifndef COINHSL_HAS_MC19
 #ifdef IPOPT_SINGLE
 static mc19a_t func_mc19a = NULL;
@@ -1219,18 +1265,32 @@ void IPOPT_HSL_FUNC(mc19ad, MC19AD)(
    float*  R,
    float*  C,
    float*  W
+=======
+#ifdef HSLLOADER_MC19
+static mc19a_t func_mc19a = NULL;
+
+void IPOPT_HSL_FUNCP(mc19a, MC19A)(
+   ipfint*   N,
+   ipfint*   NZ,
+   ipnumber* A,
+   ipfint*   IRN,
+   ipfint*   ICN,
+   float*    R,
+   float*    C,
+   float*    W
+>>>>>>> upstream/devel
 )
 {
-   if( func_mc19ad == NULL )
+   if( func_mc19a == NULL )
    {
       LSL_lateHSLLoad();
    }
-   if( func_mc19ad == NULL )
+   if( func_mc19a == NULL )
    {
-      fprintf(stderr, "HSL routine MC19AD not found in " HSLLIBNAME ".\nAbort...\n");
+      fprintf(stderr, "HSL routine MC19A" HSLFUNCNAMESUFFIXUC " not found in " HSLLIBNAME ".\nAbort...\n");
       exit(EXIT_FAILURE);
    }
-   func_mc19ad(N, NZ, A, IRN, ICN, R, C, W);
+   func_mc19a(N, NZ, A, IRN, ICN, R, C, W);
 }
 #endif // IPOPT_SINGLE
 #endif
@@ -1301,6 +1361,7 @@ int LSL_loadHSL(
    }
 
    /* load HSL functions */
+<<<<<<< HEAD
 #ifndef COINHSL_HAS_MA27
 #ifdef IPOPT_SINGLE
    func_ma27i = (ma27i_t)LSL_loadSym(HSL_handle, "ma27i", msgbuf, msglen);
@@ -1329,6 +1390,21 @@ int LSL_loadHSL(
    func_ma57cd = (ma57cd_t)LSL_loadSym(HSL_handle, "ma57cd", msgbuf, msglen);
    func_ma57ed = (ma57ed_t)LSL_loadSym(HSL_handle, "ma57ed", msgbuf, msglen);
 #endif // IPOPT_SINGLE
+=======
+#ifdef HSLLOADER_MA27
+   func_ma27i = (ma27i_t)LSL_loadSym(HSL_handle, "ma27i" HSLFUNCNAMESUFFIX, msgbuf, msglen);
+   func_ma27a = (ma27a_t)LSL_loadSym(HSL_handle, "ma27a" HSLFUNCNAMESUFFIX, msgbuf, msglen);
+   func_ma27b = (ma27b_t)LSL_loadSym(HSL_handle, "ma27b" HSLFUNCNAMESUFFIX, msgbuf, msglen);
+   func_ma27c = (ma27c_t)LSL_loadSym(HSL_handle, "ma27c" HSLFUNCNAMESUFFIX, msgbuf, msglen);
+#endif
+
+#ifdef HSLLOADER_MA57
+   func_ma57i = (ma57i_t)LSL_loadSym(HSL_handle, "ma57i" HSLFUNCNAMESUFFIX, msgbuf, msglen);
+   func_ma57a = (ma57a_t)LSL_loadSym(HSL_handle, "ma57a" HSLFUNCNAMESUFFIX, msgbuf, msglen);
+   func_ma57b = (ma57b_t)LSL_loadSym(HSL_handle, "ma57b" HSLFUNCNAMESUFFIX, msgbuf, msglen);
+   func_ma57c = (ma57c_t)LSL_loadSym(HSL_handle, "ma57c" HSLFUNCNAMESUFFIX, msgbuf, msglen);
+   func_ma57e = (ma57e_t)LSL_loadSym(HSL_handle, "ma57e" HSLFUNCNAMESUFFIX, msgbuf, msglen);
+>>>>>>> upstream/devel
 #endif
 
 #ifndef COINHSL_HAS_MA77
@@ -1372,11 +1448,16 @@ int LSL_loadHSL(
    func_ma97_free_akeep = (ma97_free_akeep_t)LSL_loadSym(HSL_handle, "ma97_free_akeep_d", msgbuf, msglen);
 #endif
 
+<<<<<<< HEAD
 #ifndef COINHSL_HAS_MC19
 #ifdef IPOPT_SINGLE
    func_mc19a = (mc19a_t)LSL_loadSym(HSL_handle, "mc19a", msgbuf, msglen);
 #else
    func_mc19ad = (mc19ad_t)LSL_loadSym(HSL_handle, "mc19ad", msgbuf, msglen);
+=======
+#ifdef HSLLOADER_MC19
+   func_mc19a = (mc19a_t)LSL_loadSym(HSL_handle, "mc19a" HSLFUNCNAMESUFFIX, msgbuf, msglen);
+>>>>>>> upstream/devel
 #endif
 #endif
 
@@ -1400,33 +1481,47 @@ int LSL_unloadHSL(void)
    rc = LSL_unloadLib(HSL_handle);
    HSL_handle = NULL;
 
+<<<<<<< HEAD
 #ifndef COINHSL_HAS_MA27
 #ifdef IPOPT_SINGLE
+=======
+#ifdef HSLLOADER_MA27
+>>>>>>> upstream/devel
    func_ma27i = NULL;
    func_ma27a = NULL;
    func_ma27b = NULL;
    func_ma27c = NULL;
+<<<<<<< HEAD
 #else
    func_ma27id = NULL;
    func_ma27ad = NULL;
    func_ma27bd = NULL;
    func_ma27cd = NULL;
+=======
+>>>>>>> upstream/devel
 #endif
 #endif
 
+<<<<<<< HEAD
 #ifndef COINHSL_HAS_MA57
 #ifdef IPOPT_SINGLE
+=======
+#ifdef HSLLOADER_MA57
+>>>>>>> upstream/devel
    func_ma57i = NULL;
    func_ma57a = NULL;
    func_ma57b = NULL;
    func_ma57c = NULL;
    func_ma57e = NULL;
+<<<<<<< HEAD
 #else
    func_ma57id = NULL;
    func_ma57ad = NULL;
    func_ma57bd = NULL;
    func_ma57cd = NULL;
    func_ma57ed = NULL;
+=======
+>>>>>>> upstream/devel
 #endif
 #endif
 
@@ -1467,11 +1562,16 @@ int LSL_unloadHSL(void)
    func_ma97_finalise = NULL;
 #endif
 
+<<<<<<< HEAD
 #ifndef COINHSL_HAS_MC19
 #ifdef IPOPT_SINGLE
    func_mc19a = NULL;
 #else
    func_mc19ad = NULL;
+=======
+#ifdef HSLLOADER_MC19
+   func_mc19a = NULL;
+>>>>>>> upstream/devel
 #endif
 #endif
 
@@ -1490,12 +1590,17 @@ int LSL_isHSLLoaded(void)
 
 int LSL_isMA27available(void)
 {
+<<<<<<< HEAD
 #ifndef COINHSL_HAS_MA27
 #ifdef IPOPT_SINGLE
    return func_ma27i != NULL && func_ma27a != NULL && func_ma27b != NULL && func_ma27c != NULL;
 #else
    return func_ma27id != NULL && func_ma27ad != NULL && func_ma27bd != NULL && func_ma27cd != NULL;
 #endif // IPOPT_SINGLE
+=======
+#ifdef HSLLOADER_MA27
+   return func_ma27i != NULL && func_ma27a != NULL && func_ma27b != NULL && func_ma27c != NULL;
+>>>>>>> upstream/devel
 #else
    return 1;
 #endif
@@ -1503,12 +1608,17 @@ int LSL_isMA27available(void)
 
 int LSL_isMA57available(void)
 {
+<<<<<<< HEAD
 #ifndef COINHSL_HAS_MA57
 #ifdef IPOPT_SINGLE
    return func_ma57i != NULL && func_ma57a != NULL && func_ma57b != NULL && func_ma57c != NULL && func_ma57e != NULL;
 #else
    return func_ma57id != NULL && func_ma57ad != NULL && func_ma57bd != NULL && func_ma57cd != NULL && func_ma57ed != NULL;
 #endif // IPOPT_SINGLE
+=======
+#ifdef HSLLOADER_MA57
+   return func_ma57i != NULL && func_ma57a != NULL && func_ma57b != NULL && func_ma57c != NULL && func_ma57e != NULL;
+>>>>>>> upstream/devel
 #else
    return 1;
 #endif
@@ -1543,12 +1653,17 @@ int LSL_isMA97available(void)
 
 int LSL_isMC19available(void)
 {
+<<<<<<< HEAD
 #ifndef COINHSL_HAS_MC19
 #ifdef IPOPT_SINGLE
    return func_mc19a != NULL;
 #else
    return func_mc19ad != NULL;
 #endif // IPOPT_SINGLE
+=======
+#ifdef HSLLOADER_MC19
+   return func_mc19a != NULL;
+>>>>>>> upstream/devel
 #else
    return 1;
 #endif
@@ -1584,11 +1699,15 @@ char* LSL_HSLLibraryName(void)
 }
 
 void LSL_setMA27(
+<<<<<<< HEAD
 #ifdef IPOPT_SINGLE
+=======
+>>>>>>> upstream/devel
    ma27a_t ma27a,
    ma27b_t ma27b,
    ma27c_t ma27c,
    ma27i_t ma27i
+<<<<<<< HEAD
 )
 {
 #ifndef COINHSL_HAS_MA27
@@ -1607,14 +1726,17 @@ void LSL_setMA27(
    ma27bd_t ma27bd,
    ma27cd_t ma27cd,
    ma27id_t ma27id
+=======
+>>>>>>> upstream/devel
 )
 {
-#ifndef COINHSL_HAS_MA27
-   func_ma27ad = ma27ad;
-   func_ma27bd = ma27bd;
-   func_ma27cd = ma27cd;
-   func_ma27id = ma27id;
+#ifdef HSLLOADER_MA27
+   func_ma27a = ma27a;
+   func_ma27b = ma27b;
+   func_ma27c = ma27c;
+   func_ma27i = ma27i;
 #else
+<<<<<<< HEAD
    (void) ma27ad;
    (void) ma27bd;
    (void) ma27cd;
@@ -1625,11 +1747,22 @@ void LSL_setMA27(
 
 void LSL_setMA57(
 #ifdef IPOPT_SINGLE
+=======
+   (void) ma27a;
+   (void) ma27b;
+   (void) ma27c;
+   (void) ma27i;
+#endif // HSLLOADER_MA27
+}
+
+void LSL_setMA57(
+>>>>>>> upstream/devel
    ma57a_t ma57a,
    ma57b_t ma57b,
    ma57c_t ma57c,
    ma57e_t ma57e,
    ma57i_t ma57i
+<<<<<<< HEAD
 )
 {
 #ifndef COINHSL_HAS_MA57
@@ -1651,15 +1784,18 @@ void LSL_setMA57(
    ma57cd_t ma57cd,
    ma57ed_t ma57ed,
    ma57id_t ma57id
+=======
+>>>>>>> upstream/devel
 )
 {
-#ifndef COINHSL_HAS_MA57
-   func_ma57ad = ma57ad;
-   func_ma57bd = ma57bd;
-   func_ma57cd = ma57cd;
-   func_ma57ed = ma57ed;
-   func_ma57id = ma57id;
+#ifdef HSLLOADER_MA57
+   func_ma57a = ma57a;
+   func_ma57b = ma57b;
+   func_ma57c = ma57c;
+   func_ma57e = ma57e;
+   func_ma57i = ma57i;
 #else
+<<<<<<< HEAD
    (void) ma57ad;
    (void) ma57bd;
    (void) ma57cd;
@@ -1667,6 +1803,14 @@ void LSL_setMA57(
    (void) ma57id;
 #endif // COINHSL_HAS_MA57
 #endif // IPOPT_SINGLE
+=======
+   (void) ma57a;
+   (void) ma57b;
+   (void) ma57c;
+   (void) ma57e;
+   (void) ma57i;
+#endif // HSLLOADER_MA57
+>>>>>>> upstream/devel
 }
 
 void LSL_setMA77(
@@ -1781,6 +1925,7 @@ void LSL_setMA97(
 }
 
 void LSL_setMC19(
+<<<<<<< HEAD
 #ifdef IPOPT_SINGLE
    mc19a_t mc19a
 )
@@ -1792,14 +1937,22 @@ void LSL_setMC19(
 #endif // COINHSL_HAS_MC19
 #else
    mc19ad_t mc19ad
+=======
+   mc19a_t mc19a
+>>>>>>> upstream/devel
 )
 {
-#ifndef COINHSL_HAS_MC19
-   func_mc19ad = mc19ad;
+#ifdef HSLLOADER_MC19
+   func_mc19a = mc19a;
 #else
+<<<<<<< HEAD
    (void) mc19ad;
 #endif // COINHSL_HAS_MC19
 #endif // IPOPT_SINGLE
+=======
+   (void) mc19a;
+#endif // HSLLOADER_MC19
+>>>>>>> upstream/devel
 }
 
 void LSL_setMC68(

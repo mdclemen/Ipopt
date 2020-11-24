@@ -393,11 +393,15 @@ Number CGPenaltyCq::compute_curr_cg_penalty_scale()
    Number infeasibility = ip_cq_->curr_primal_infeasibility(NORM_2);
    if( !CGPenData().NeverTryPureNewton() )
    {
+<<<<<<< HEAD
 #ifdef IPOPT_SINGLE
       penalty = Min(1e13f, infeasibility * 1e9f);
 #else
       penalty = Min(1e13, infeasibility * 1e9);
 #endif
+=======
+      penalty = Min(Number(1e13), infeasibility * Number(1e9));
+>>>>>>> upstream/devel
    }
    else
    {

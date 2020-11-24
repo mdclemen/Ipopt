@@ -7,6 +7,7 @@
 #include "IpoptConfig.h"
 #include "IpEquilibrationScaling.hpp"
 #include "IpTripletHelper.hpp"
+#include "IpTypes.h"
 
 #ifdef IPOPT_HAS_HSL
 #include "CoinHslConfig.h"
@@ -15,11 +16,18 @@
 #define IPOPT_HSL_FUNC(name,NAME) name
 #endif
 
+#ifdef IPOPT_SINGLE
+#define IPOPT_HSL_FUNCP(name,NAME) IPOPT_HSL_FUNC(name,NAME)
+#else
+#define IPOPT_HSL_FUNCP(name,NAME) IPOPT_HSL_FUNC(name ## d,NAME ## D)
+#endif
+
 #include <cmath>
 
 /** Prototypes for MA27's Fortran subroutines */
 extern "C"
 {
+<<<<<<< HEAD
 #ifdef IPOPT_SINGLE
    void IPOPT_HSL_FUNC(mc19a, MC19A)(
       const ipfint* N,
@@ -43,6 +51,19 @@ extern "C"
       float*        R, // single precision in both versions
       float*       C,
       float*       W
+=======
+// note that R,C,W are single-precision also in the double-precision version of MC19 (MC19AD)
+// here we assume that float corresponds to Fortran's single precision
+   void IPOPT_HSL_FUNCP(mc19a, MC19A)(
+      const ipfint*   N,
+      const ipfint*   NZ,
+      const ipnumber* A,
+      const ipfint*   IRN,
+      const ipfint*   ICN,
+      float*          R,
+      float*          C,
+      float*          W
+>>>>>>> upstream/devel
    );
 #endif
 }
@@ -222,14 +243,20 @@ void EquilibrationScaling::DetermineScalingParametersImpl(
    float* R = new float[N];
    float* C = new float[N];
    float* W = new float[5 * N];
-#if defined(COINHSL_HAS_MC19) || defined(IPOPT_HAS_LINEARSOLVERLOADER)
+#if (defined(COINHSL_HAS_MC19) && !defined(IPOPT_SINGLE)) || \
+    (defined(COINHSL_HAS_MC19S) && defined(IPOPT_SINGLE)) || \
+    defined(IPOPT_HAS_LINEARSOLVERLOADER)
    const ipfint NZ = nnz_jac_c + nnz_jac_d + nnz_grad_f;
+<<<<<<< HEAD
 #ifdef IPOPT_SINGLE
    IPOPT_HSL_FUNC(mc19a, MC19A)(&N, &NZ, avrg_values, AJCN, AIRN, C, R, W);
 #else
    //IPOPT_HSL_FUNC(mc19ad,MC19AD)(&N, &NZ, avrg_values, AIRN, AJCN, R, C, W);
    IPOPT_HSL_FUNC(mc19ad, MC19AD)(&N, &NZ, avrg_values, AJCN, AIRN, C, R, W);
 #endif
+=======
+   IPOPT_HSL_FUNCP(mc19a, MC19A)(&N, &NZ, avrg_values, AJCN, AIRN, C, R, W);
+>>>>>>> upstream/devel
 #else
 
    THROW_EXCEPTION(OPTION_INVALID, "Currently cannot do equilibration-based NLP scaling if MC19 is not available.");

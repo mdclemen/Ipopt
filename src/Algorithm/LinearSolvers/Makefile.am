@@ -20,7 +20,11 @@ liblinsolvers_la_SOURCES += \
 	IpMa27TSolverInterface.cpp \
 	IpMa57TSolverInterface.cpp \
 	IpMc19TSymScalingMethod.cpp
+<<<<<<< HEAD
 if IPOPT_DOUBLE
+=======
+if !IPOPT_SINGLE
+>>>>>>> upstream/devel
 liblinsolvers_la_SOURCES += \
 	IpMa86SolverInterface.cpp \
 	IpMa97SolverInterface.cpp \

@@ -6,12 +6,19 @@
 
 #include "IpoptConfig.h"
 #include "IpLapack.hpp"
+#include "IpTypes.h"
 
 #ifdef FUNNY_LAPACK_FINT
 # define ipfint long
 # define ipfintarray int
 #else
 # define ipfintarray ipfint
+#endif
+
+#ifdef IPOPT_SINGLE
+#define IPOPT_LAPACK_FUNCP(name,NAME) IPOPT_LAPACK_FUNC(s ## name,S ## NAME)
+#else
+#define IPOPT_LAPACK_FUNCP(name,NAME) IPOPT_LAPACK_FUNC(d ## name,D ## NAME)
 #endif
 
 #ifdef IPOPT_HAS_LAPACK
@@ -273,77 +280,77 @@ void IpLapackPpsv(
 #else
 extern "C"
 {
-   /** LAPACK Fortran subroutine DPOTRS. */
-   void IPOPT_LAPACK_FUNC(dpotrs, DPOTRS)(
-      char*         uplo,
+   /** LAPACK Fortran subroutine XPOTRS. */
+   void IPOPT_LAPACK_FUNCP(potrs, POTRS)(
+      char*           uplo,
+      ipfint*         n,
+      ipfint*         nrhs,
+      const ipnumber* A,
+      ipfint*         ldA,
+      ipnumber*       B,
+      ipfint*         ldB,
+      ipfint*         info,
+      int             uplo_len
+   );
+
+   /** LAPACK Fortran subroutine XPOTRF. */
+   void IPOPT_LAPACK_FUNCP(potrf, POTRF)(
+      char*     uplo,
+      ipfint*   n,
+      ipnumber* A,
+      ipfint*   ldA,
+      ipfint*   info,
+      int       uplo_len
+   );
+
+   /** LAPACK Fortran subroutine XSYEV */
+   void IPOPT_LAPACK_FUNCP(syev, SYEV)(
+      char*     jobz,
+      char*     uplo,
+      ipfint*   n,
+      ipnumber* A,
+      ipfint*   ldA,
+      ipnumber* W,
+      ipnumber* WORK,
+      ipfint*   LWORK,
+      ipfint*   info,
+      int       jobz_len,
+      int       uplo_len
+   );
+
+   /** LAPACK Fortran subroutine XGETRF. */
+   void IPOPT_LAPACK_FUNCP(getrf, GETRF)(
+      ipfint*       m,
       ipfint*       n,
-      ipfint*       nrhs,
-      const double* A,
-      ipfint*       ldA,
-      double*       B,
-      ipfint*       ldB,
-      ipfint*       info,
-      int           uplo_len
-   );
-
-   /** LAPACK Fortran subroutine DPOTRF. */
-   void IPOPT_LAPACK_FUNC(dpotrf, DPOTRF)(
-      char*   uplo,
-      ipfint* n,
-      double* A,
-      ipfint* ldA,
-      ipfint* info,
-      int     uplo_len
-   );
-
-   /** LAPACK Fortran subroutine DSYEV */
-   void IPOPT_LAPACK_FUNC(dsyev, DSYEV)(
-      char*   jobz,
-      char*   uplo,
-      ipfint* n,
-      double* A,
-      ipfint* ldA,
-      double* W,
-      double* WORK,
-      ipfint* LWORK,
-      ipfint* info,
-      int     jobz_len,
-      int     uplo_len
-   );
-
-   /** LAPACK Fortran subroutine DGETRF. */
-   void IPOPT_LAPACK_FUNC(dgetrf, DGETRF)(
-      ipfint*      m,
-      ipfint*      n,
-      double*      A,
-      ipfint*      ldA,
-      ipfintarray* IPIV,
-      ipfint*      info
-   );
-
-   /** LAPACK Fortran subroutine DGETRS. */
-   void IPOPT_LAPACK_FUNC(dgetrs, DGETRS)(
-      char*         trans,
-      ipfint*       n,
-      ipfint*       nrhs,
-      const double* A,
+      ipnumber*     A,
       ipfint*       ldA,
       ipfintarray*  IPIV,
-      double*       B,
-      ipfint*       ldB,
-      ipfint*       info,
-      int           trans_len
+      ipfint*       info
    );
 
-   /** LAPACK Fortran subroutine DPPSV. */
-   void IPOPT_LAPACK_FUNC(dppsv, DPPSV)(
-      char*         uplo,
-      ipfint*       n,
-      ipfint*       nrhs,
-      const double* A,
-      double*       B,
-      ipfint*       ldB,
-      ipfint*       info
+   /** LAPACK Fortran subroutine XGETRS. */
+   void IPOPT_LAPACK_FUNCP(getrs, GETRS)(
+      char*           trans,
+      ipfint*         n,
+      ipfint*         nrhs,
+      const ipnumber* A,
+      ipfint*         ldA,
+      ipfintarray*    IPIV,
+      ipnumber*       B,
+      ipfint*         ldB,
+      ipfint*         info,
+      int             trans_len
+   );
+
+   /** LAPACK Fortran subroutine XPPSV. */
+   void IPOPT_LAPACK_FUNCP(ppsv, PPSV)(
+      char*           uplo,
+      ipfint*         n,
+      ipfint*         nrhs,
+      const ipnumber* A,
+      ipnumber*       B,
+      ipfint*         ldB,
+      ipfint*         info
    );
 }
 
@@ -362,7 +369,7 @@ void IpLapackPotrs(
    ipfint N = ndim, NRHS = nrhs, LDA = lda, LDB = ldb, INFO;
    char uplo = 'L';
 
-   IPOPT_LAPACK_FUNC(dpotrs, DPOTRS)(&uplo, &N, &NRHS, a, &LDA, b, &LDB, &INFO, 1);
+   IPOPT_LAPACK_FUNCP(potrs, POTRS)(&uplo, &N, &NRHS, a, &LDA, b, &LDB, &INFO, 1);
    DBG_ASSERT(INFO == 0);
 #else
 
@@ -384,7 +391,7 @@ void IpLapackPotrf(
 
    char UPLO = 'L';
 
-   IPOPT_LAPACK_FUNC(dpotrf, DPOTRF)(&UPLO, &N, a, &LDA, &INFO, 1);
+   IPOPT_LAPACK_FUNCP(potrf, POTRF)(&UPLO, &N, a, &LDA, &INFO, 1);
 
    info = INFO;
 #else
@@ -422,7 +429,11 @@ void IpLapackSyev(
    // First we find out how large LWORK should be
    ipfint LWORK = -1;
    Number WORK_PROBE;
+<<<<<<< HEAD
    IPOPT_LAPACK_FUNC(dsyev, DSYEV)(&JOBZ, &UPLO, &N, a, &LDA, w,
+=======
+   IPOPT_LAPACK_FUNCP(syev, SYEV)(&JOBZ, &UPLO, &N, a, &LDA, w,
+>>>>>>> upstream/devel
                                   &WORK_PROBE, &LWORK, &INFO, 1, 1);
    DBG_ASSERT(INFO == 0);
 
@@ -434,7 +445,7 @@ void IpLapackSyev(
    {
       WORK[i] = i;
    }
-   IPOPT_LAPACK_FUNC(dsyev, DSYEV)(&JOBZ, &UPLO, &N, a, &LDA, w,
+   IPOPT_LAPACK_FUNCP(syev, SYEV)(&JOBZ, &UPLO, &N, a, &LDA, w,
                                   WORK, &LWORK, &INFO, 1, 1);
 
    DBG_ASSERT(INFO >= 0);
@@ -461,7 +472,7 @@ void IpLapackGetrf(
 #ifdef IPOPT_HAS_LAPACK
    ipfint M = ndim, N = ndim, LDA = lda, INFO;
 
-   IPOPT_LAPACK_FUNC(dgetrf, DGETRF)(&M, &N, a, &LDA, ipiv, &INFO);
+   IPOPT_LAPACK_FUNCP(getrf, GETRF)(&M, &N, a, &LDA, ipiv, &INFO);
 
    info = INFO;
 #else
@@ -487,8 +498,9 @@ void IpLapackGetrs(
    ipfint N = ndim, NRHS = nrhs, LDA = lda, LDB = ldb, INFO;
    char trans = 'N';
 
-   IPOPT_LAPACK_FUNC(dgetrs, DGETRS)(&trans, &N, &NRHS, a, &LDA, ipiv, b, &LDB,
+   IPOPT_LAPACK_FUNCP(getrs, GETRS)(&trans, &N, &NRHS, a, &LDA, ipiv, b, &LDB,
                                     &INFO, 1);
+
    DBG_ASSERT(INFO == 0);
 #else
 
@@ -512,7 +524,7 @@ void IpLapackPpsv(
    ipfint N = ndim, NRHS = nrhs, LDB = ldb, INFO;
    char uplo = 'U';
 
-   IPOPT_LAPACK_FUNC(dppsv, DPPSV)(&uplo, &N, &NRHS, a, b, &LDB, &INFO);
+   IPOPT_LAPACK_FUNCP(ppsv, PPSV)(&uplo, &N, &NRHS, a, b, &LDB, &INFO);
 
    info = INFO;
 #else
@@ -524,5 +536,9 @@ void IpLapackPpsv(
 }
 
 } // namespace Ipopt
+<<<<<<< HEAD
 #endif
 #endif
+=======
+#endif  /* ifdef IPOPT_HAS_LAPACK */
+>>>>>>> upstream/devel

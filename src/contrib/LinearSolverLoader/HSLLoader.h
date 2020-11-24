@@ -9,6 +9,7 @@
 #define HSLLOADER_H_
 
 #include "IpoptConfig.h"
+#include "IpTypes.h"
 
 #ifdef __cplusplus
 extern "C"
@@ -76,6 +77,7 @@ typedef double ma97realtype_d_;
 struct mc68_control_i;
 struct mc68_info_i;
 
+<<<<<<< HEAD
 #ifndef __IPTYPES_HPP__
 /* Type of Fortran integer translated into C */
 typedef IPOPT_FORTRAN_INTEGER_TYPE ipfint;
@@ -205,6 +207,9 @@ typedef void (*ma57i_t)(
 );
 #else
 typedef void (*ma27ad_t)(
+=======
+typedef void (*ma27a_t)(
+>>>>>>> upstream/devel
    ipfint*       N,
    ipfint*       NZ,
    const ipfint* IRN,
@@ -216,17 +221,17 @@ typedef void (*ma27ad_t)(
    ipfint*       NSTEPS,
    ipfint*       IFLAG,
    ipfint*       ICNTL,
-   double*       CNTL,
+   ipnumber*     CNTL,
    ipfint*       INFO,
-   double*       OPS
+   ipnumber*     OPS
 );
 
-typedef void (*ma27bd_t)(
+typedef void (*ma27b_t)(
    ipfint*       N,
    ipfint*       NZ,
    const ipfint* IRN,
    const ipfint* ICN,
-   double*       A,
+   ipnumber*     A,
    ipfint*       LA,
    ipfint*       IW,
    ipfint*       LIW,
@@ -235,31 +240,31 @@ typedef void (*ma27bd_t)(
    ipfint*       MAXFRT,
    ipfint*       IW1,
    ipfint*       ICNTL,
-   double*       CNTL,
+   ipnumber*     CNTL,
    ipfint*       INFO
 );
 
-typedef void (*ma27cd_t)(
-   ipfint* N,
-   double* A,
-   ipfint* LA,
-   ipfint* IW,
-   ipfint* LIW,
-   double* W,
-   ipfint* MAXFRT,
-   double* RHS,
-   ipfint* IW1,
-   ipfint* NSTEPS,
-   ipfint* ICNTL,
-   double* CNTL
+typedef void (*ma27c_t)(
+   ipfint*   N,
+   ipnumber* A,
+   ipfint*   LA,
+   ipfint*   IW,
+   ipfint*   LIW,
+   ipnumber* W,
+   ipfint*   MAXFRT,
+   ipnumber* RHS,
+   ipfint*   IW1,
+   ipfint*   NSTEPS,
+   ipfint*   ICNTL,
+   ipnumber* CNTL
 );
 
-typedef void (*ma27id_t)(
-   ipfint* ICNTL,
-   double* CNTL
+typedef void (*ma27i_t)(
+   ipfint*   ICNTL,
+   ipnumber* CNTL
 );
 
-typedef void (*ma57ad_t)(
+typedef void (*ma57a_t)(
    ipfint*       n,     /**< Order of matrix. */
    ipfint*       ne,    /**< Number of entries. */
    const ipfint* irn,   /**< Matrix nonzero row structure */
@@ -270,61 +275,61 @@ typedef void (*ma57ad_t)(
    ipfint*       iwork, /**< Integer work space. */
    ipfint*       icntl, /**< Integer Control parameter of length 30 */
    ipfint*       info,  /**< Statistical Information; Integer array of length 20 */
-   double*       rinfo  /**< Double Control parameter of length 5 */
+   ipnumber*     rinfo  /**< Double Control parameter of length 5 */
 );
 
-typedef void (*ma57bd_t)(
-   ipfint* n,      /**< Order of matrix. */
-   ipfint* ne,     /**< Number of entries. */
-   double* a,      /**< Numerical values. */
-   double* fact,   /**< Entries of factors. */
-   ipfint* lfact,  /**< Length of array `fact'. */
-   ipfint* ifact,  /**< Indexing info for factors. */
-   ipfint* lifact, /**< Length of array `ifact'. */
-   ipfint* lkeep,  /**< Length of array `keep'. */
-   ipfint* keep,   /**< Integer array. */
-   ipfint* iwork,  /**< Workspace of length `n'. */
-   ipfint* icntl,  /**< Integer Control parameter of length 20. */
-   double* cntl,   /**< Double Control parameter of length 5. */
-   ipfint* info,   /**< Statistical Information; Integer array of length 40. */
-   double* rinfo   /**< Statistical Information; Real array of length 20. */
+typedef void (*ma57b_t)(
+   ipfint*   n,      /**< Order of matrix. */
+   ipfint*   ne,     /**< Number of entries. */
+   ipnumber* a,      /**< Numerical values. */
+   ipnumber* fact,   /**< Entries of factors. */
+   ipfint*   lfact,  /**< Length of array `fact'. */
+   ipfint*   ifact,  /**< Indexing info for factors. */
+   ipfint*   lifact, /**< Length of array `ifact'. */
+   ipfint*   lkeep,  /**< Length of array `keep'. */
+   ipfint*   keep,   /**< Integer array. */
+   ipfint*   iwork,  /**< Workspace of length `n'. */
+   ipfint*   icntl,  /**< Integer Control parameter of length 20. */
+   ipnumber* cntl,   /**< Double Control parameter of length 5. */
+   ipfint*   info,   /**< Statistical Information; Integer array of length 40. */
+   ipnumber* rinfo   /**< Statistical Information; Real array of length 20. */
 );
 
-typedef void (*ma57cd_t)(
-   ipfint* job,    /**< Solution job.  Solve for... */
-   ipfint* n,      /**< Order of matrix. */
-   double* fact,   /**< Entries of factors. */
-   ipfint* lfact,  /**< Length of array `fact'. */
-   ipfint* ifact,  /**< Indexing info for factors. */
-   ipfint* lifact, /**< Length of array `ifact'. */
-   ipfint* nrhs,   /**< Number of right hand sides. */
-   double* rhs,    /**< Numerical Values. */
-   ipfint* lrhs,   /**< Leading dimensions of `rhs'. */
-   double* work,   /**< Real workspace. */
-   ipfint* lwork,  /**< Length of `work', >= N*NRHS. */
-   ipfint* iwork,  /**< Integer array of length `n'. */
-   ipfint* icntl,  /**< Integer Control parameter array of length 20. */
-   ipfint* info    /**< Statistical Information; Integer array of length 40. */
+typedef void (*ma57c_t)(
+   ipfint*   job,    /**< Solution job.  Solve for... */
+   ipfint*   n,      /**< Order of matrix. */
+   ipnumber* fact,   /**< Entries of factors. */
+   ipfint*   lfact,  /**< Length of array `fact'. */
+   ipfint*   ifact,  /**< Indexing info for factors. */
+   ipfint*   lifact, /**< Length of array `ifact'. */
+   ipfint*   nrhs,   /**< Number of right hand sides. */
+   ipnumber* rhs,    /**< Numerical Values. */
+   ipfint*   lrhs,   /**< Leading dimensions of `rhs'. */
+   ipnumber* work,   /**< Real workspace. */
+   ipfint*   lwork,  /**< Length of `work', >= N*NRHS. */
+   ipfint*   iwork,  /**< Integer array of length `n'. */
+   ipfint*   icntl,  /**< Integer Control parameter array of length 20. */
+   ipfint*   info    /**< Statistical Information; Integer array of length 40. */
 );
 
-typedef void (*ma57ed_t)(
-   ipfint* n,
-   ipfint* ic,    /**< 0: copy real array.  >=1:  copy integer array. */
-   ipfint* keep,
-   double* fact,
-   ipfint* lfact,
-   double* newfac,
-   ipfint* lnew,
-   ipfint* ifact,
-   ipfint* lifact,
-   ipfint* newifc,
-   ipfint* linew,
-   ipfint* info
+typedef void (*ma57e_t)(
+   ipfint*   n,
+   ipfint*   ic,    /**< 0: copy real array.  >=1:  copy integer array. */
+   ipfint*   keep,
+   ipnumber* fact,
+   ipfint*   lfact,
+   ipnumber* newfac,
+   ipfint*   lnew,
+   ipfint*   ifact,
+   ipfint*   lifact,
+   ipfint*   newifc,
+   ipfint*   linew,
+   ipfint*   info
 );
 
-typedef void (*ma57id_t)(
-   double* cntl,
-   ipfint* icntl
+typedef void (*ma57i_t)(
+   ipnumber* cntl,
+   ipfint*   icntl
 );
 #endif // IPOPT_SINGLE
 typedef void (*ma77_default_control_t)(
@@ -588,6 +593,7 @@ typedef void (*ma97_finalise_t)(
 typedef void (*ma97_free_akeep_t)(
    void** akeep
 );
+<<<<<<< HEAD
 #ifdef IPOPT_SINGLE
 typedef void (*mc19a_t)(
    ipfint* N,
@@ -609,6 +615,18 @@ typedef void (*mc19ad_t)(
    float*  R,
    float*  C,
    float*  W
+=======
+
+typedef void (*mc19a_t)(
+   ipfint*   N,
+   ipfint*   NZ,
+   ipnumber* A,
+   ipfint*   IRN,
+   ipfint*   ICN,
+   float*    R,
+   float*    C,
+   float*    W
+>>>>>>> upstream/devel
 );
 #endif // IPOPT_SINGLE
 typedef void (*mc68_default_control_t)(
@@ -705,27 +723,37 @@ IPOPTLIB_EXPORT char* LSL_HSLLibraryName(void);
 
 /** sets pointers to MA27 functions */
 IPOPTLIB_EXPORT void LSL_setMA27(
+<<<<<<< HEAD
 #ifdef IPOPT_SINGLE
+=======
+>>>>>>> upstream/devel
    ma27a_t ma27a,
    ma27b_t ma27b,
    ma27c_t ma27c,
    ma27i_t ma27i
+<<<<<<< HEAD
 #else
    ma27ad_t ma27ad,
    ma27bd_t ma27bd,
    ma27cd_t ma27cd,
    ma27id_t ma27id
 #endif
+=======
+>>>>>>> upstream/devel
 );
 
 /** sets pointers to MA57 functions */
 IPOPTLIB_EXPORT void LSL_setMA57(
+<<<<<<< HEAD
 #ifdef IPOPT_SINGLE
+=======
+>>>>>>> upstream/devel
    ma57a_t ma57a,
    ma57b_t ma57b,
    ma57c_t ma57c,
    ma57e_t ma57e,
    ma57i_t ma57i
+<<<<<<< HEAD
 #else
    ma57ad_t ma57ad,
    ma57bd_t ma57bd,
@@ -733,6 +761,8 @@ IPOPTLIB_EXPORT void LSL_setMA57(
    ma57ed_t ma57ed,
    ma57id_t ma57id
 #endif
+=======
+>>>>>>> upstream/devel
 );
 
 /** sets pointers to MA77 functions */
@@ -778,11 +808,15 @@ IPOPTLIB_EXPORT void LSL_setMA97(
 
 /** sets pointer to MC19 function */
 IPOPTLIB_EXPORT void LSL_setMC19(
+<<<<<<< HEAD
 #ifdef IPOPT_SINGLE
    mc19a_t mc19a
 #else
    mc19ad_t mc19ad
 #endif
+=======
+   mc19a_t mc19a
+>>>>>>> upstream/devel
 );
 
 /** sets pointers to MC68 functions */
